@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .start-container {
+            margin-top: 50px;
+        }
+
+        input, button {
+            font-size: 1em;
+            margin: 5px;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin: 20px auto;
+            background-color: #ddd;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ccc;
+            font-size: 2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+        }
+
+        .cell:hover {
+            background-color: #e0e0e0;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .win-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 2em;
+        }
+
+        .win-screen.show {
+            display: flex;
+        }
+    </style>
+    <title>Tic-Tac-Toe</title>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+
+    <div class="start-container">
+        <label for="playerX">Player X: </label>
+        <input type="text" id="playerX" placeholder="Enter name">
+        <br>
+        <label for="playerO">Player O: </label>
+        <input type="text" id="playerO" placeholder="Enter name">
+        <br>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="message" class="message"></div>
+    <div class="board" onclick="handleClick(event)">
+        <!-- The cells will be dynamically added here using JavaScript -->
+    </div>
+
+    <div id="winScreen" class="win-screen">
+        <div id="winner"></div>
+        <button onclick="restartGame()">Play Again</button>
+    </div>
+
+    <script>
+        let currentPlayer;
+        let playerXName;
+        let playerOName;
+        let board;
+        let gameActive;
+
+        function startGame() {
+            playerXName = document.getElementById('playerX').value || 'Player X';
+            playerOName = document.getElementById('playerO').value || 'Player O';
+            currentPlayer = 'X';
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+
+            document.getElementById('message').textContent = `${playerXName}'s turn`;
+            updateBoard();
+        }
+
+        function handleClick(event) {
+            const cell = event.target;
+            const index = cell.dataset.index;
+
+            if (board[index] === '' && gameActive) {
+                board[index] = currentPlayer;
+                cell.textContent = currentPlayer;
+                checkWinner();
+                togglePlayer();
+                updateBoard();
+            }
+        }
+
+        function togglePlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            document.getElementById('message').textContent = `${currentPlayer === 'X' ? playerXName : playerOName}'s turn`;
+        }
+
+        function checkWinner() {
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6]             // Diagonals
+            ];
+
+            for (const combo of winningCombinations) {
+                const [a, b, c] = combo;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    showWinScreen(`${currentPlayer === 'X' ? playerXName : playerOName} wins!`);
+                    gameActive = false;
+                }
+            }
+
+            if (!board.includes('') && gameActive) {
+                showWinScreen('It\'s a draw!');
+                gameActive = false;
+            }
+        }
+
+        function updateBoard() {
+            const boardContainer = document.querySelector('.board');
+            boardContainer.innerHTML = '';
+
+            for (let i = 0; i < board.length; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.textContent = board[i];
+                boardContainer.appendChild(cell);
+            }
+        }
+
+        function showWinScreen(message) {
+            const winScreen = document.getElementById('winScreen');
+            const winnerText = document.getElementById('winner');
+            winnerText.textContent = message;
+            winScreen.classList.add('show');
+        }
+
+        function restartGame() {
+            document.getElementById('playerX').value = '';
+            document.getElementById('playerO').value = '';
+            document.getElementById('message').textContent = '';
+            document.querySelector('.board').innerHTML = '';
+            document.getElementById('winScreen').classList.remove('show');
+            document.getElementById('message').textContent = `${playerXName || 'Player X'}'s turn`;
+            gameActive = true;
+
+            const boardContainer = document.querySelector('.board');
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                boardContainer.appendChild(cell);
+            }
+
+            startGame();
+        }
+    </script>
+</body>
+</html>
+
+
+
